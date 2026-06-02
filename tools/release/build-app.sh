@@ -16,4 +16,6 @@ cp "$XCCONFIG_PATH" "$DIST_DIR/Reynard.xcconfig"
 BUILD_SHA=$(git -C "$ROOT_DIR" rev-parse --short HEAD)
 sed -i '' "s/CURRENT_BUILD = .*/CURRENT_BUILD = $BUILD_SHA/" "$DIST_DIR/Reynard.xcconfig"
 
-xcodebuild archive -scheme "Reynard" -archivePath "$DIST_DIR/Reynard.xcarchive" -project "$PROJECT_PATH" -sdk iphoneos -arch arm64 -configuration Release -xcconfig "$DIST_DIR/Reynard.xcconfig"
+XCODEBUILD_EXTRA_ARGS=${XCODEBUILD_EXTRA_ARGS:-}
+# shellcheck disable=SC2086
+xcodebuild archive -scheme "Reynard" -archivePath "$DIST_DIR/Reynard.xcarchive" -project "$PROJECT_PATH" -sdk iphoneos -arch arm64 -configuration Release -xcconfig "$DIST_DIR/Reynard.xcconfig" $XCODEBUILD_EXTRA_ARGS
