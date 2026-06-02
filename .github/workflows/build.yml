@@ -37,8 +37,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
           fetch-depth: 0
+
+      - name: Initialize lightweight submodules
+        run: |
+          git submodule sync -- support/idevice engine/firefox
+          git submodule update --init --depth 1 --recursive support/idevice
 
       - name: Select Xcode
         run: |
