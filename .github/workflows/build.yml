@@ -49,19 +49,24 @@ jobs:
         run: |
           brew update
           if brew info autoconf@2.13 >/dev/null 2>&1; then
-            brew install autoconf@2.13 ccache ldid nasm pkg-config rustup-init yasm
+            brew install autoconf@2.13 ccache ldid nasm pkg-config rustup yasm
           else
             echo "autoconf@2.13 is unavailable on this Homebrew runner; falling back to autoconf"
-            brew install autoconf ccache ldid nasm pkg-config rustup-init yasm
+            brew install autoconf ccache ldid nasm pkg-config rustup yasm
           fi
+
+          BREW_RUSTUP_BIN="$(brew --prefix rustup)/bin"
+          echo "$BREW_RUSTUP_BIN" >> "$GITHUB_PATH"
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+          export PATH="$BREW_RUSTUP_BIN:$HOME/.cargo/bin:$PATH"
           if ! command -v rustup >/dev/null 2>&1; then
-            rustup-init -y --default-toolchain stable
-            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
           fi
 
       - name: Configure Rust
         run: |
-          export PATH="$HOME/.cargo/bin:$PATH"
+          export PATH="$(brew --prefix rustup)/bin:$HOME/.cargo/bin:$PATH"
           rustup default stable
           rustup target add aarch64-apple-ios
 
@@ -92,12 +97,12 @@ jobs:
 
       - name: Build idevice helper library
         run: |
-          export PATH="$HOME/.cargo/bin:$PATH"
+          export PATH="$(brew --prefix rustup)/bin:$HOME/.cargo/bin:$PATH"
           ./tools/development/build-idevice.sh
 
       - name: Build Gecko engine
         run: |
-          export PATH="$HOME/.cargo/bin:$PATH"
+          export PATH="$(brew --prefix rustup)/bin:$HOME/.cargo/bin:$PATH"
           ./tools/development/build-gecko.sh
 
       - name: Resolve package version
