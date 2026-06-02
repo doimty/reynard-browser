@@ -48,7 +48,12 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install autoconf@2.13 ccache ldid nasm pkg-config rustup-init yasm
+          if brew info autoconf@2.13 >/dev/null 2>&1; then
+            brew install autoconf@2.13 ccache ldid nasm pkg-config rustup-init yasm
+          else
+            echo "autoconf@2.13 is unavailable on this Homebrew runner; falling back to autoconf"
+            brew install autoconf ccache ldid nasm pkg-config rustup-init yasm
+          fi
           if ! command -v rustup >/dev/null 2>&1; then
             rustup-init -y --default-toolchain stable
             echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
