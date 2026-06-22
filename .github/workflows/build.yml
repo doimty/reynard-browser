@@ -70,11 +70,17 @@ jobs:
         run: |
           brew update
           if brew info autoconf@2.13 >/dev/null 2>&1; then
-            brew install autoconf@2.13 ccache ldid nasm pkg-config rustup yasm
+            brew install autoconf@2.13 ccache ldid lld nasm pkg-config rustup yasm
           else
             echo "autoconf@2.13 is unavailable on this Homebrew runner; falling back to autoconf"
-            brew install autoconf ccache ldid nasm pkg-config rustup yasm
+            brew install autoconf ccache ldid lld nasm pkg-config rustup yasm
           fi
+
+          # zstandard: mach uses .tar.zst for toolchain artifacts (clang/etc.).
+          # Without it, mach silently fails to unpack toolchain tarballs and the
+          # subsequent `mach build` errors with "Failed to find an adequate linker".
+          python3 -m pip install --upgrade pip
+          python3 -m pip install zstandard
 
           BREW_RUSTUP_BIN="$(brew --prefix rustup)/bin"
           echo "$BREW_RUSTUP_BIN" >> "$GITHUB_PATH"
