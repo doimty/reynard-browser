@@ -35,8 +35,11 @@ permissions:
 jobs:
   build:
     name: Build IPA packages
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 360
+
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.4.1.app/Contents/Developer
 
     steps:
       - name: Checkout repository
@@ -50,34 +53,18 @@ jobs:
           git submodule sync -- support/idevice engine/firefox
           git submodule update --init --depth 1 --recursive support/idevice
 
-      - name: Debug - List available Xcode versions
-        run: |
-          echo "=== Available Xcode installations ==="
-          ls -la /Applications/ | grep -i xcode || echo "No Xcode dirs found"
-          echo ""
-          echo "=== Current xcode-select path ==="
-          xcode-select -p
-          echo ""
-          echo "=== Available SDK versions ==="
-          xcodebuild -showsdks || true
+      - name: Select Xcode 26.4.1 (iOS SDK 26.4)
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.4.1'
 
-      - name: Select Xcode
+      - name: Verify Xcode and iOS SDK
         run: |
-          if [ -n "${{ github.event.inputs.xcode_version }}" ]; then
-            XCODE_VERSION="${{ github.event.inputs.xcode_version }}"
-            XCODE_PATH="/Applications/Xcode_${XCODE_VERSION}.app"
-            if [ -d "$XCODE_PATH" ]; then
-              echo "Selecting Xcode $XCODE_VERSION at $XCODE_PATH"
-              sudo xcode-select -s "$XCODE_PATH"
-            else
-              echo "Warning: Xcode $XCODE_VERSION not found at $XCODE_PATH, using default"
-              sudo xcode-select -s /Applications/Xcode.app
-            fi
-          else
-            echo "Using default Xcode"
-            sudo xcode-select -s /Applications/Xcode.app
-          fi
           xcodebuild -version
+          echo "---"
+          xcrun --sdk iphoneos --show-sdk-version
+          echo "---"
+          xcodebuild -showsdks | grep -i ios || true
 
       - name: Install dependencies
         run: |
