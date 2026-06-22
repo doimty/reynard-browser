@@ -50,6 +50,17 @@ jobs:
           git submodule sync -- support/idevice engine/firefox
           git submodule update --init --depth 1 --recursive support/idevice
 
+      - name: Debug - List available Xcode versions
+        run: |
+          echo "=== Available Xcode installations ==="
+          ls -la /Applications/ | grep -i xcode || echo "No Xcode dirs found"
+          echo ""
+          echo "=== Current xcode-select path ==="
+          xcode-select -p
+          echo ""
+          echo "=== Available SDK versions ==="
+          xcodebuild -showsdks || true
+
       - name: Select Xcode
         run: |
           if [ -n "${{ github.event.inputs.xcode_version }}" ]; then
