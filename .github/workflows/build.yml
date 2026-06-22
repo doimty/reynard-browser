@@ -79,8 +79,9 @@ jobs:
           # zstandard: mach uses .tar.zst for toolchain artifacts (clang/etc.).
           # Without it, mach silently fails to unpack toolchain tarballs and the
           # subsequent `mach build` errors with "Failed to find an adequate linker".
-          python3 -m pip install --upgrade pip
-          python3 -m pip install zstandard
+          # --break-system-packages: Python 3.14 on macos-26 enforces PEP 668.
+          python3 -m pip install --upgrade pip --break-system-packages
+          python3 -m pip install zstandard --break-system-packages
 
           BREW_RUSTUP_BIN="$(brew --prefix rustup)/bin"
           echo "$BREW_RUSTUP_BIN" >> "$GITHUB_PATH"
