@@ -70,10 +70,10 @@ jobs:
         run: |
           brew update
           if brew info autoconf@2.13 >/dev/null 2>&1; then
-            brew install autoconf@2.13 ccache ldid lld nasm pkg-config rustup yasm
+            brew install autoconf@2.13 ccache ldid lld nasm pkg-config yasm
           else
             echo "autoconf@2.13 is unavailable on this Homebrew runner; falling back to autoconf"
-            brew install autoconf ccache ldid lld nasm pkg-config rustup yasm
+            brew install autoconf ccache ldid lld nasm pkg-config yasm
           fi
 
           # zstandard: mach uses .tar.zst for toolchain artifacts (clang/etc.).
@@ -83,20 +83,10 @@ jobs:
           python3 -m pip install --upgrade pip --break-system-packages
           python3 -m pip install zstandard --break-system-packages
 
-          BREW_RUSTUP_BIN="$(brew --prefix rustup)/bin"
-          echo "$BREW_RUSTUP_BIN" >> "$GITHUB_PATH"
-          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
-
-          export PATH="$BREW_RUSTUP_BIN:$HOME/.cargo/bin:$PATH"
-          if ! command -v rustup >/dev/null 2>&1; then
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
-          fi
-
-      - name: Configure Rust
-        run: |
-          export PATH="$(brew --prefix rustup)/bin:$HOME/.cargo/bin:$PATH"
-          rustup default stable
-          rustup target add aarch64-apple-ios
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
 
       - name: Cache cargo registry and git
         uses: actions/cache@v4
