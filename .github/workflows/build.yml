@@ -125,12 +125,19 @@ jobs:
 
       - name: Build idevice helper library
         run: |
-          export PATH="$(brew --prefix rustup)/bin:$HOME/.cargo/bin:$PATH"
+          export PATH="$HOME/.cargo/bin:$PATH"
           ./tools/development/build-idevice.sh
+
+      - name: Fetch Mozilla toolchain artifacts
+        working-directory: engine/firefox
+        run: |
+          # mach configure downloads Mozilla's clang/toolchain artifacts,
+          # including the wasm-capable compiler that Xcode clang lacks.
+          ./mach configure 2>&1 | tail -200
 
       - name: Build Gecko engine
         run: |
-          export PATH="$(brew --prefix rustup)/bin:$HOME/.cargo/bin:$PATH"
+          export PATH="$HOME/.cargo/bin:$PATH"
           ./tools/development/build-gecko.sh
 
       - name: Resolve package version
